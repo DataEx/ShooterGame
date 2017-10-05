@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour {
+public class PlayerController : BasicController {
 
-    [SerializeField]
-    private float speed = 1f;
-    public Transform rotator;
+
     Vector3 localFrontSide, localBackSide, localLeftSide, localRightSide;
+
+    public GameObject cannonLeft;
+    public GameObject cannonRight;
+    public GameObject bulletPrefab;
 
     // Use this for initialization
     void Awake () {
@@ -22,12 +24,33 @@ public class PlayerController : MonoBehaviour {
         localBackSide = (colliderCenter - Vector3.forward * colliderSize.x / 2f) * scale;
         localRightSide = (colliderCenter + Vector3.right* colliderSize.z / 2f) * scale;
         localLeftSide = (colliderCenter - Vector3.right * colliderSize.z / 2f) * scale;
+
+        StartCoroutine(FireBulletsContinuously());
     }
 
     // Update is called once per frame
     void FixedUpdate () {
         HandleLeftJoystickInput();
-        HandleRightJoystickInput();   
+        HandleRightJoystickInput();
+
+    }
+
+    IEnumerator FireBulletsContinuously() {
+        while (true) {
+            FireBullet();
+            yield return new WaitForSeconds(1f / bulletsPerSecond);
+        }
+
+    }
+
+    void FireBullet() {
+        Transform leftBullet = Instantiate(bulletPrefab).transform;
+        Transform rightBullet = Instantiate(bulletPrefab).transform;
+        leftBullet.position = cannonLeft.transform.position;
+        rightBullet.position = cannonRight.transform.position;
+        leftBullet.rotation = cannonLeft.transform.rotation;
+        rightBullet.rotation = cannonRight.transform.rotation;
+
     }
 
     // Controls player rotation
