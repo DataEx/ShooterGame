@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BulletController : MonoBehaviour {
+public abstract class BulletController : MonoBehaviour {
+
+    public float speed;
+    protected Transform bulletShooter;
 
     IEnumerator Start() {
         yield return new WaitForSeconds(5f);
@@ -10,11 +13,27 @@ public class BulletController : MonoBehaviour {
     }
 
 	void FixedUpdate () {
-        this.transform.position += this.transform.up * 2f;
+        Move();
 	}
 
+    public virtual void Move() {
+    }
+
     void OnTriggerEnter(Collider collider) {
-        if(collider.tag == "Stage")
+        if (collider.tag == "Stage") {
             Destroy(this.gameObject);
+        }
+    }
+
+    public void SetTag(string tag) {
+        this.tag = tag;
+    }
+
+    public virtual void SetOrientation(Vector3 position, Quaternion rotation) {}
+
+
+    public virtual void SetBulletShooter(Transform shooter)
+    {
+        bulletShooter = shooter;
     }
 }

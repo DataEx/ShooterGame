@@ -4,53 +4,95 @@ using UnityEngine;
 
 public class PlayerController : BasicController {
 
+    bool isInvulnerable = false;
 
-    Vector3 localFrontSide, localBackSide, localLeftSide, localRightSide;
+    Vector3 localNorthSide, localSouthSide, localWestSide, localEastSide,
+        localNESide, localNWSide, localSESide, localSWSide;
 
     public GameObject cannonLeft;
     public GameObject cannonRight;
-    public GameObject bulletPrefab;
+
+    Coroutine turningCoroutine;
+
+    [SerializeField]
+    HUDController HUD;
 
     // Use this for initialization
-    void Awake () {
+    public override void Awake () {
         BoxCollider boxCollider = this.GetComponent<BoxCollider>();
         Vector3 colliderCenter = boxCollider.center;
         Vector3 colliderSize = boxCollider.size;
-        PrintVector3(colliderCenter);
-        PrintVector3(colliderSize);
         float scale = this.transform.localScale.x;
-        localFrontSide = (colliderCenter + Vector3.forward * colliderSize.x / 2f) * scale;
-        PrintVector3(localFrontSide);
-        localBackSide = (colliderCenter - Vector3.forward * colliderSize.x / 2f) * scale;
-        localRightSide = (colliderCenter + Vector3.right* colliderSize.z / 2f) * scale;
-        localLeftSide = (colliderCenter - Vector3.right * colliderSize.z / 2f) * scale;
+        localNorthSide = (colliderCenter + Vector3.forward * colliderSize.x / 2f) * scale;
+        localSouthSide = (colliderCenter - Vector3.forward * colliderSize.x / 2f) * scale;
+        localEastSide = (colliderCenter + Vector3.right* colliderSize.z / 2f) * scale;
+        localWestSide = (colliderCenter - Vector3.right * colliderSize.z / 2f) * scale;
 
-        StartCoroutine(FireBulletsContinuously());
+        Vector3 NEVector = (new Vector3(1, 0, 1)).normalized;
+        Vector3 NWVector = (new Vector3(-1, 0, 1)).normalized;
+        Vector3 SEVector = (new Vector3(1, 0, -1)).normalized;
+        Vector3 SWVector = (new Vector3(-1, 0, -1)).normalized;
+
+        localNESide = (colliderCenter + NEVector * colliderSize.x / 2f) * scale;
+        localNWSide = (colliderCenter + NWVector * colliderSize.x / 2f) * scale;
+        localSESide = (colliderCenter + SEVector * colliderSize.x / 2f) * scale;
+        localSWSide = (colliderCenter + SWVector * colliderSize.x / 2f) * scale;
+
+        base.Awake();
     }
 
-    // Update is called once per frame
     void FixedUpdate () {
         HandleLeftJoystickInput();
         HandleRightJoystickInput();
 
     }
 
-    IEnumerator FireBulletsContinuously() {
-        while (true) {
-            FireBullet();
-            yield return new WaitForSeconds(1f / bulletsPerSecond);
+    void OnTriggerEnter(Collider collider)
+    {
+        if (collider.tag == "EnemyBullet" && !isInvulnerable)
+        {
+            health -= 1;
+            if (health <= 0) {
+                print("Game Over!");
+                health = 0;
+            }
+            else {
+                StartCoroutine(EnableInvulnerability());
+            }
+            HUD.SetPlayerHealth(health);
         }
-
     }
 
-    void FireBullet() {
-        Transform leftBullet = Instantiate(bulletPrefab).transform;
-        Transform rightBullet = Instantiate(bulletPrefab).transform;
-        leftBullet.position = cannonLeft.transform.position;
-        rightBullet.position = cannonRight.transform.position;
-        leftBullet.rotation = cannonLeft.transform.rotation;
-        rightBullet.rotation = cannonRight.transform.rotation;
 
+    IEnumerator EnableInvulnerability() {
+        float timeInvulnerable = 1f;
+        float currentTime = 0f;
+        float blinkingInterval = 0.1f;
+        int colorInt = 0;
+
+        isInvulnerable = true;
+        while (currentTime < timeInvulnerable) {
+            yield return new WaitForSecondsRealtime(blinkingInterval);
+            if (colorInt == 0)
+                SetCharacterColor(Color.red);
+            else
+                SetCharacterColor(characterColor);
+            colorInt = (colorInt + 1) % 2;
+            currentTime += blinkingInterval;
+        }
+
+        SetCharacterColor(characterColor);
+        isInvulnerable = false;
+    }
+
+    public override void FireBullet() {
+        BulletController leftBullet = Instantiate(bulletPrefab) as BulletController;
+        BulletController rightBullet = Instantiate(bulletPrefab) as BulletController;
+        leftBullet.SetTag("PlayerBullet");
+        rightBullet.SetTag("PlayerBullet");
+        leftBullet.SetOrientation(cannonLeft.transform.position, cannonLeft.transform.rotation);
+        rightBullet.SetOrientation(cannonRight.transform.position, cannonRight.transform.rotation);
+ 
     }
 
     // Controls player rotation
@@ -63,11 +105,41 @@ public class PlayerController : BasicController {
             return;
 
         Vector2 direction = new Vector2(horizontalTurnInput, verticalTurnInput);
+        if (direction.magnitude < 0.4f)
+            return;
+
         float angle = Vector2.Angle(Vector2.up, direction);
         if (horizontalTurnInput < 0)
             angle = 360 - angle;
-        rotator.transform.localRotation = Quaternion.Euler(0, angle, 0);
 
+        if (turningCoroutine != null)
+            StopCoroutine(turningCoroutine);
+        turningCoroutine = StartCoroutine(TurnTo(angle));
+    }
+
+    IEnumerator TurnTo(float desiredAngle) {
+        float turnSpeed = 20f;
+        float currentAngle = rotator.transform.localEulerAngles.y;
+        int direction = 1;
+        while (currentAngle != desiredAngle) {
+            float diffAngle = desiredAngle - currentAngle;
+            if (diffAngle > 180)
+                direction = -1;
+            else if (diffAngle < -180)
+                direction = 1;
+            else if(diffAngle < 0)
+                direction = -1;
+            if (Mathf.Abs(diffAngle) <= turnSpeed)
+            {
+                rotator.transform.localRotation = Quaternion.Euler(0, desiredAngle, 0);
+            }
+            else {
+                rotator.transform.localRotation = Quaternion.Euler(0, currentAngle + direction * turnSpeed, 0);
+            }
+            yield return null;
+            currentAngle = rotator.transform.localEulerAngles.y;
+        }
+        turningCoroutine = null;
     }
 
     // Controls player movement
@@ -93,10 +165,10 @@ public class PlayerController : BasicController {
         float horiztonalMovement = movementVector.x;
         float verticalMovement = movementVector.z;
 
-
+        /*
         if (verticalMovement > 0)
         {
-            if (Physics.Raycast(transform.position + localFrontSide, Vector3.forward, out hit))
+            if (Physics.Raycast(transform.position + localNorthSide, Vector3.forward, out hit))
             {
                 if (hit.distance <= verticalMovement)
                     verticalMovement = hit.distance - 0.01f;
@@ -104,7 +176,7 @@ public class PlayerController : BasicController {
         }
         else if (verticalMovement < 0)
         {
-            if (Physics.Raycast(transform.position + localBackSide, Vector3.back, out hit))
+            if (Physics.Raycast(transform.position + localSouthSide, Vector3.back, out hit))
             {
                 if (hit.distance <= -verticalMovement)
                     verticalMovement = -hit.distance + 0.01f;
@@ -112,7 +184,7 @@ public class PlayerController : BasicController {
         }
         if (horiztonalMovement > 0)
         {
-            if (Physics.Raycast(transform.position + localRightSide, Vector3.right, out hit))
+            if (Physics.Raycast(transform.position + localEastSide, Vector3.right, out hit))
             {
                 if (hit.distance <= horiztonalMovement)
                     horiztonalMovement = hit.distance - 0.01f;
@@ -120,13 +192,13 @@ public class PlayerController : BasicController {
         }
         else if (horiztonalMovement < 0)
         {
-            if (Physics.Raycast(transform.position + localLeftSide, Vector3.left, out hit))
+            if (Physics.Raycast(transform.position + localWestSide, Vector3.left, out hit))
             {
                 if (hit.distance <= -horiztonalMovement)
                     horiztonalMovement = -hit.distance + 0.01f;
             }
         }
-
+        */
         Vector3 updatedMovementVector = new Vector3(horiztonalMovement, 0, verticalMovement);
         return updatedMovementVector;
     }

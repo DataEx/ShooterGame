@@ -22,8 +22,7 @@ GameObject:
   - component: {fileID: 33173986268288646}
   - component: {fileID: 136978438845178270}
   - component: {fileID: 23579177189686526}
-  - component: {fileID: 114928676521558512}
-  - component: {fileID: 114883825262895750}
+  - component: {fileID: 114574489933606952}
   m_Layer: 0
   m_Name: BasicBullet
   m_TagString: Untagged
@@ -83,7 +82,7 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1726744975829080}
   m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
---- !u!114 &114883825262895750
+--- !u!114 &114574489933606952
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
@@ -91,21 +90,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1726744975829080}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 08b3e7c017ee3ae4b858789de540e71a, type: 3}
+  m_Script: {fileID: 11500000, guid: 9d8bf6faaa6b40e4988a16e7515c5498, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 0
---- !u!114 &114928676521558512
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1726744975829080}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 501c57909b85f634a90132e2b39a5ae1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  speed: 2
 --- !u!136 &136978438845178270
 CapsuleCollider:
   m_ObjectHideFlags: 1
