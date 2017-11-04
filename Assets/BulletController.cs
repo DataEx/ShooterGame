@@ -4,8 +4,12 @@ using UnityEngine;
 
 public abstract class BulletController : MonoBehaviour {
 
-    public float speed;
+    [SerializeField]
+	string bulletName;
+
+	public float speed;
     protected Transform bulletShooter;
+
 
     IEnumerator Start() {
         yield return new WaitForSeconds(5f);
@@ -19,8 +23,8 @@ public abstract class BulletController : MonoBehaviour {
     public virtual void Move() {
     }
 
-    void OnTriggerEnter(Collider collider) {
-        if (collider.tag == "Stage") {
+    public virtual void OnCollisionEnter(Collision collision) {
+        if (collision.collider.tag == "Stage") {
             Destroy(this.gameObject);
         }
     }
@@ -28,6 +32,10 @@ public abstract class BulletController : MonoBehaviour {
     public void SetTag(string tag) {
         this.tag = tag;
     }
+
+	public string GetBulletName(){
+		return bulletName;
+	}
 
     public virtual void SetOrientation(Vector3 position, Quaternion rotation) {}
 

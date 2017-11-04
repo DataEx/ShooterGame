@@ -4,9 +4,10 @@ using UnityEngine;
 
 public class SceneCollider : MonoBehaviour {
 
-
-    void OnTriggerEnter(Collider collider) {
-      //  print("collision");
+/*
+    void OnCollisionEnter(Collision collision) {
+        print(collision.collider.name);
     }
+*/
 
 }

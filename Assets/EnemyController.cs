@@ -10,16 +10,18 @@ public abstract class EnemyController : BasicController {
     public override void Awake()
     {
         base.Awake();
-       // StartCoroutine(Move());
-    }
+		EnemyTracker.AddEnemy (this);
+	}
 
     void OnTriggerEnter(Collider collider) {
         if (collider.tag == "PlayerBullet") {
             Destroy(collider.gameObject);
             health -= 1;
             SetHealthColor();
-            if (health <= 0)
-                Destroy(this.gameObject);
+			if (health <= 0) {
+				EnemyTracker.RemoveEnemy (this);
+				Destroy(this.gameObject);
+			}
         }
     }
 

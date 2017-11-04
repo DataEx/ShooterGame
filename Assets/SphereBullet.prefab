@@ -93,6 +93,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e312c8390b4a49348b42a7a384d72166, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  bulletName: Sphere Bullet
   speed: 1
 --- !u!135 &135806956815437278
 SphereCollider:
@@ -101,7 +102,7 @@ SphereCollider:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1764973119657662}
   m_Material: {fileID: 0}
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
   m_Radius: 0.5

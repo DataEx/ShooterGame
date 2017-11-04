@@ -22,6 +22,7 @@ GameObject:
   - component: {fileID: 33546730350589672}
   - component: {fileID: 136359853460190958}
   - component: {fileID: 23625129268231444}
+  - component: {fileID: 54684196165137674}
   - component: {fileID: 114606293528094832}
   m_Layer: 0
   m_Name: EnemySpawner
@@ -82,6 +83,21 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1998135861816898}
   m_Mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!54 &54684196165137674
+Rigidbody:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1998135861816898}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!114 &114606293528094832
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -93,6 +109,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e6e0cc5a6908734c802a4c294a4f0bf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  health: 15
+  speed: 0
+  rotator: {fileID: 4572649597371152}
+  characterCollider: {fileID: 136359853460190958}
+  bulletsPerSecond: 0.2
+  bulletPrefab: {fileID: 0}
+  rotateSpeed: 0
+  playerCharacter: {fileID: 0}
+  enemyPrefab: {fileID: 114513640432276372, guid: e910342d1060ed04898ad78056ae203a,
+    type: 2}
+  maxEnemiesSpawn: 5
 --- !u!136 &136359853460190958
 CapsuleCollider:
   m_ObjectHideFlags: 1
@@ -100,7 +127,7 @@ CapsuleCollider:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1998135861816898}
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_Enabled: 1
   m_Radius: 0.5
   m_Height: 2
